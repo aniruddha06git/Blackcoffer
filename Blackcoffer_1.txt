@@ -1,0 +1,146 @@
+package com.aniruddha;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+public class Test {
+
+	public static void main(String[] args) {
+		String jdbcUrl = "jdbc:mysql://localhost:3306/test1";
+		String username = "root";
+		String password = "root";
+		String filepath = "C:\\Users\\Aniruddha\\OneDrive\\Desktop\\Data.csv";
+		int batchSize = 20;
+		Connection connection = null;
+
+		try {
+			connection = DriverManager.getConnection(jdbcUrl, username, password);
+			connection.setAutoCommit(false);
+
+			String sql = "insert into Assignment(end_year,citylng,citylat,intensity,sector,topic,insight,swot,url,region,start_year,impact,added,published,city,country,relevance,pestle,source,title,likelihood) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+
+			PreparedStatement statement = connection.prepareStatement(sql);
+			BufferedReader lineReader = new BufferedReader(new FileReader(filepath));
+
+			String lineText = null;
+			int count = 0;
+			lineReader.readLine();
+
+			while ((lineText = lineReader.readLine()) != null && !lineText.trim().isEmpty()) {
+			    System.out.println("Processing line: " + lineText);
+			    String[] data = lineText.split(",");
+			    
+			
+
+			    if (data.length >= 21) {
+			        
+			        String end_year = data[1];
+			        String citylng = data[2];
+			        String citylat = data[3];
+			        String intensity = data[4];
+			        String sector = data[5];
+			        String topic = data[6];
+			        String insight = data[7];
+			        String swot = data[8];
+			        String url = data[9];
+			        String region = data[10];
+			        String start_year = data[11];
+			        String impact = data[12];
+			        String added = data[13];
+			        String published = data[14];
+			        String city = data[15];
+			        String country = data[16];
+			        String relevance = data[17];
+			        String pestle = data[18];
+			        String source = data[19];
+			        String title = data[20];
+			        String likelihood = data[21];
+
+			        if (end_year != null && !end_year.isEmpty() && end_year.matches("\\d+")) {
+			            statement.setInt(1, Integer.parseInt(end_year));
+			        } else {
+			            statement.setNull(1, java.sql.Types.INTEGER);
+			        }
+
+
+
+
+			       
+
+
+			        statement.setString(2, citylng);
+			        statement.setString(3, citylat);
+			        statement.setString(4, intensity);
+			        statement.setString(5, sector);
+			        statement.setString(6, topic);
+			        statement.setString(7, insight);
+			        statement.setString(8, swot);
+			        statement.setString(9, url);
+			        statement.setString(10, region);
+
+			        if (!start_year.isEmpty() && start_year.matches("\\d+")) {
+			            statement.setInt(11, Integer.parseInt(start_year));
+			        } else {
+			            statement.setNull(11, java.sql.Types.INTEGER);
+			        }
+
+			        statement.setString(12, impact);
+			        statement.setString(13, added);
+			        statement.setString(14, published);
+			        statement.setString(15, city);
+			        statement.setString(16, country);
+			        statement.setString(17, relevance);
+			        statement.setString(18, pestle);
+			        statement.setString(19, source);
+			        statement.setString(20, title);
+			        statement.setString(21, likelihood);
+
+			        statement.addBatch();
+			       
+
+			        if (count % batchSize == 0) {
+			            statement.executeBatch();
+			        }
+			    }
+			    count++;
+			}
+
+
+			lineReader.close();
+			statement.executeBatch();
+			connection.commit();
+			connection.close();
+
+			
+
+		
+
+		System.out.println("   Data has been inserted successfully   ");
+	}
+	catch(Exception e) {
+	    e.printStackTrace();
+	    System.out.println("Error occurred while inserting data. Rolling back changes.");
+	    try {
+	        connection.rollback();
+	    } catch (SQLException ex) {
+	        ex.printStackTrace();
+	    }
+	}
+
+}}
+
+	
+
+		
+
+
+
+
+	
+
+
